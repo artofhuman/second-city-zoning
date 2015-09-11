@@ -1,14 +1,14 @@
 var CartoDbLib = CartoDbLib || {};
 var CartoDbLib = {
 
-  map_centroid:    [41.87811, -87.66677],
+  map_centroid:    [40.692353,-73.921509],
   defaultZoom:     11,
   lastClickedLayer: null,
-  locationScope:   "chicago",
+  locationScope:   "new_york",
   currentPinpoint: null,
-  layerUrl: 'http://datamade.cartodb.com/api/v2/viz/1422db28-7eed-11e4-a731-0e4fddd5de28/viz.json',
-  tableName: 'city_of_chicago_zoning',
-  maptiks_tracking_code: '9474d15e-b1b4-4868-b5d8-9b03805af16e',
+  layerUrl: 'https://cwhong.cartodb.com/api/v2/viz/66276cd2-5817-11e5-9177-0ec6f7c8b2b9/viz.json',
+  tableName: 'nyc_zoning',
+  maptiks_tracking_code: '',
 
   initialize: function(){
 
@@ -23,11 +23,10 @@ var CartoDbLib = {
       CartoDbLib.map = new L.Map('mapCanvas', { 
         center: CartoDbLib.map_centroid,
         zoom: CartoDbLib.defaultZoom,
-        track_id: CartoDbLib.maptiks_tracking_code,
-        sa_id: '2nd City Zoning'
+        layers: CartoDbLib.basemap
       });
 
-      CartoDbLib.google = new L.Google('ROADMAP', {animate: false});
+      //CartoDbLib.google = new L.Google('ROADMAP', {animate: false});
         
       CartoDbLib.satellite = L.tileLayer('https://{s}.tiles.mapbox.com/v3/datamade.k92mcmc8/{z}/{x}/{y}.png', {
         attribution: '<a href="http://www.mapbox.com/about/maps/" target="_blank">Terms &amp; Feedback</a>',
@@ -35,14 +34,12 @@ var CartoDbLib = {
         sa_id: 'satellite'
       });
         
-      CartoDbLib.buildings = L.tileLayer('http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors',
-        detectRetina: true,
-        sa_id: 'buildings'
-      });
+      CartoDbLib.basemap = L.tileLayer('http://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png', {
+        attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, &copy; <a href="http://cartodb.com/attributions">CartoDB</a>'
+      }).addTo(CartoDbLib.map);
 
-      CartoDbLib.baseMaps = {"Streets": CartoDbLib.google, "Building addresses": CartoDbLib.buildings, "Satellite": CartoDbLib.satellite};
-      CartoDbLib.map.addLayer(CartoDbLib.google);
+      CartoDbLib.baseMaps = {"Basemap": CartoDbLib.basemap, "Satellite": CartoDbLib.satellite};
+      //CartoDbLib.map.addLayer(CartoDbLib.google);
 
       CartoDbLib.info = L.control({position: 'bottomleft'});
 
@@ -54,9 +51,10 @@ var CartoDbLib = {
 
       // method that we will use to update the control based on feature properties passed
       CartoDbLib.info.update = function (props) {
+        console.log(props);
         if (props) {
-          var zone_info = CartoDbLib.getZoneInfo(props.zone_class);
-          this._div.innerHTML = "<img src='/images/icons/" + zone_info.zone_icon + ".png' /> " + props.zone_class + " - " + zone_info.title;
+          var zone_info = CartoDbLib.getZoneInfo(props.zonedist);
+          this._div.innerHTML = "<img src='/images/icons/" + zone_info.zone_icon + ".png' /> " + props.zonedist + " - " + zone_info.title;
         }
         else {
           this._div.innerHTML = 'Hover over an area';
@@ -71,19 +69,19 @@ var CartoDbLib = {
 
       var fields = "cartodb_id, zone_type, zone_class, ordinance_"
       var layerOpts = {
-        user_name: 'datamade',
+        user_name: 'cwhong',
         type: 'cartodb',
         cartodb_logo: false,
         sublayers: [
           {
             sql: "select * from " + CartoDbLib.tableName,
-            cartocss: $('#second-city-zoning-styles').html().trim(),
-            interactivity: fields
+            cartocss: $('#second-city-zoning-styles').html().trim()
+            //interactivity: fields
           }
         ]
       }
 
-      CartoDbLib.dataLayer = cartodb.createLayer(CartoDbLib.map, layerOpts)
+      CartoDbLib.dataLayer = cartodb.createLayer(CartoDbLib.map, CartoDbLib.layerUrl )
         .addTo(CartoDbLib.map)
         .done(function(layer) {
           var sublayer = layer.getSubLayer(0);
@@ -124,60 +122,32 @@ var CartoDbLib = {
     CartoDbLib.doSearch();
   },
 
-  getZoneInfo: function(zone_class) {
-    // console.log("looking up zone_class: " + zone_class);
-    // PD and PMD have different numbers for each district. Fix for displaying generic title and link.
-    if (zone_class.substring(0, 'PMD'.length) === 'PMD') {
-      title = 'Planned Manufacturing District';
-      description = "All kinds of manufacturing, warehouses, and waste disposal. Special service district - not technically a manufacturing district - intended to protect the city's industrial base.";
-      zone_class_link = "PMD";
-      project_link = "https://gisapps.cityofchicago.org/gisimages/zoning_pds/" + zone_class.replace(" ","") + ".pdf"
-    }
-    else if (zone_class.substring(0, 'PD'.length) === 'PD') {
-      title = 'Planned Development';
-      description = "Tall buildings, campuses, and other large developments that must be negotiated with city planners. Developers gain freedom in building design, but must work with city to ensure project serves and integrates with surrounding neighborhood.";
-      zone_class_link = "PD";
-      project_link = "https://gisapps.cityofchicago.org/gisimages/zoning_pds/" + zone_class.replace(" ","") + ".pdf"
-
-      //https://gisapps.cityofchicago.org/gisimages/zoning_pds/PD43.pdf
-    }
-    else {
-      title = ZoningTable[zone_class].district_title;
-      description = ZoningTable[zone_class].juan_description;
-      zone_class_link = zone_class;
-      project_link = "";
-    }
+  getZoneInfo: function(zonedist) {
+   
+    title = ZoningTable[zonedist].district_title;
+    //description = ZoningTable[zone_class].juan_description;
+    //zone_class_link = zone_class;
+    //project_link = "";
+    
 
     return {
-      'title': title, 
-      'description': description, 
-      'zone_class_link': zone_class_link, 
-      'zone_icon': CartoDbLib.getZoneIcon(zone_class),
-      'project_link': project_link
+      'title': title,
+      // 'description': description, 
+      // 'zone_class_link': zone_class_link, 
+      'zone_icon': CartoDbLib.getZoneIcon(zonedist)
+      // 'project_link': project_link
     };
   },
 
-  getZoneIcon: function(zone_class) {
-    var zone_prefix = zone_class.replace( new RegExp("[^A-Z]","gm"),"");
+  getZoneIcon: function(zonedist) {
+    var zone_prefix = zonedist.substr(0,1);
 
     var zone_icon = '';
     switch(zone_prefix) {
-      case 'B'   : zone_icon = 'commercial'; break;
       case 'C'   : zone_icon = 'commercial'; break;
       case 'M'   : zone_icon = 'industrial'; break;
       case 'R'   : zone_icon = 'residential'; break;
-      case 'RS'  : zone_icon = 'residential'; break;
-      case 'RT'  : zone_icon = 'residential'; break;
-      case 'RTA' : zone_icon = 'residential'; break;
-      case 'RM'  : zone_icon = 'residential'; break;
-      case 'PD'  : zone_icon = 'government'; break;
-      case 'PMD' : zone_icon = 'industrial'; break;
-      case 'DX'  : zone_icon = 'commercial'; break;
-      case 'DC'  : zone_icon = 'commercial'; break;
-      case 'DR'  : zone_icon = 'residential'; break;
-      case 'DS'  : zone_icon = 'commercial'; break;
-      case 'T'   : zone_icon = 'trains'; break;
-      case 'POS' : zone_icon = 'parks-entertainment'; break;
+      case 'P' : zone_icon = 'parks-entertainment'; break;
     }
 
     return zone_icon;
