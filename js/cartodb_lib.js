@@ -42,6 +42,7 @@ var CartoDbLib = {
       //CartoDbLib.map.addLayer(CartoDbLib.google);
 
       CartoDbLib.info = L.control({position: 'bottomleft'});
+      CartoDbLib.coinfo = L.control({position: 'bottomleft'});
 
       CartoDbLib.info.onAdd = function (map) {
           this._div = L.DomUtil.create('div', 'info'); // create a div with a class "info"
@@ -49,41 +50,54 @@ var CartoDbLib = {
           return this._div;
       };
 
+      CartoDbLib.coinfo.onAdd = function (map) {
+          this._div = L.DomUtil.create('div', 'coinfo'); // create a div with a class "info"
+          //this.update();
+          $(this._div).hide();
+          return this._div;
+      };
+
       // method that we will use to update the control based on feature properties passed
       CartoDbLib.info.update = function (props) {
-        console.log(props);
+      
         if (props) {
           var zone_info = CartoDbLib.getZoneInfo(props.zonedist);
-          this._div.innerHTML = "<img src='/images/icons/" + zone_info.zone_icon + ".png' /> " + props.zonedist + " - " + zone_info.title;
-        }
-        else {
+          this._div.innerHTML = "<img src='/images/icons/" + zone_info.zone_icon + ".png' /> " + props.zonedist + " - " + zone_info.shortdescription;
+        } else {
           this._div.innerHTML = 'Hover over an area';
         }
+        $(this._div).show();
+      };
+
+      CartoDbLib.coinfo.update = function (props) {
+      
+        if (props) {
+      
+          this._div.innerHTML = "<img src='/images/icons/commercial.png' /> Commercial Overlay: " + props.overlay;
+        }
+        $(this._div).show();
       };
 
       CartoDbLib.info.clear = function(){
-        this._div.innerHTML = '';
+        $(this._div).hide();
+      };
+
+      CartoDbLib.coinfo.clear = function(){
+
+ 
+        $(this._div).hide();
       };
 
       CartoDbLib.info.addTo(CartoDbLib.map);
+      CartoDbLib.coinfo.addTo(CartoDbLib.map);
 
       var fields = "cartodb_id, zone_type, zone_class, ordinance_"
-      var layerOpts = {
-        user_name: 'cwhong',
-        type: 'cartodb',
-        cartodb_logo: false,
-        sublayers: [
-          {
-            sql: "select * from " + CartoDbLib.tableName,
-            cartocss: $('#second-city-zoning-styles').html().trim()
-            //interactivity: fields
-          }
-        ]
-      }
 
-      CartoDbLib.dataLayer = cartodb.createLayer(CartoDbLib.map, CartoDbLib.layerUrl )
+
+      cartodb.createLayer(CartoDbLib.map, CartoDbLib.layerUrl )
         .addTo(CartoDbLib.map)
         .done(function(layer) {
+          CartoDbLib.zoninglayer = layer;
           var sublayer = layer.getSubLayer(0);
           sublayer.setInteraction(true);
           sublayer.on('featureOver', function(e, latlng, pos, data, subLayerIndex) {
@@ -98,8 +112,6 @@ var CartoDbLib = {
             CartoDbLib.getOneZone(data['cartodb_id'], latlng);
           })
 
-          // after layer is loaded, add the layer toggle control
-          L.control.layers(CartoDbLib.baseMaps, {"Zoning": layer}, { collapsed: false, autoZIndex: true }).addTo(CartoDbLib.map);
 
           // CartoDbLib.map.on('zoomstart', function(e){
           //   sublayer.hide();
@@ -113,27 +125,115 @@ var CartoDbLib = {
               CartoDbLib.getOneZone($.address.parameter('id'))
             }
           }, 500)
+
+          CartoDbLib.drawLayerControl();
+
         }).error(function(e) {
           //console.log('ERROR')
           //console.log(e)
         }); 
+
+        //add the rest of the layers 
+        var layerStyle = $('#colayer-style').text();
+        cartodb.createLayer(CartoDbLib.map, {
+          user_name: 'cwhong',
+          type: 'cartodb',
+          sublayers: [{
+            sql: "SELECT * FROM nyco",
+            cartocss: layerStyle
+          }]
+        })
+        //.addTo(CartoDbLib.map)
+        .done(function(layer) {
+          
+
+          var sublayer = layer.getSubLayer(0);
+          sublayer.setInteraction(true);
+          sublayer.setInteractivity('cartodb_id,overlay');
+          sublayer.on('featureOver', function(e, latlng, pos, data, subLayerIndex) {
+            $('#mapCanvas div').css('cursor','pointer');
+            CartoDbLib.coinfo.update(data);
+            console.log(data);
+          });
+
+          sublayer.on('featureOut', function(e, latlng, pos, data, subLayerIndex) {
+            $('#mapCanvas div').css('cursor','inherit');
+            CartoDbLib.coinfo.clear();
+          });
+
+          CartoDbLib.colayer = layer;
+          CartoDbLib.drawLayerControl();
+        })
+
+        var layerStyle = $('#splayer-style').text();
+        cartodb.createLayer(CartoDbLib.map, {
+          user_name: 'cwhong',
+          type: 'cartodb',
+          sublayers: [{
+            sql: "SELECT * FROM nysp",
+            cartocss: layerStyle
+          }]
+        })
+        //.addTo(CartoDbLib.map)
+        .done(function(layer) {
+          CartoDbLib.splayer = layer;
+          CartoDbLib.drawLayerControl();
+        })
+
+        var layerStyle = $('#lhlayer-style').text();
+        console.log(layerStyle);
+        cartodb.createLayer(CartoDbLib.map, {
+          user_name: 'cwhong',
+          type: 'cartodb',
+          sublayers: [{
+            sql: "SELECT * FROM nylh",
+            cartocss: layerStyle
+          }]
+        })
+        //.addTo(CartoDbLib.map)
+        .done(function(layer) {
+          CartoDbLib.lhlayer = layer;
+      
+          CartoDbLib.drawLayerControl();
+        })
+
+
       }
 
     CartoDbLib.doSearch();
   },
 
+  drawLayerControl: function() {
+    if(
+      CartoDbLib.zoninglayer 
+      && CartoDbLib.colayer
+      && CartoDbLib.splayer
+      && CartoDbLib.lhlayer
+    ) {
+      L.control.layers(CartoDbLib.baseMaps, {
+        "Zoning Districts": CartoDbLib.zoninglayer,
+        "Commerical Overlay Districts": CartoDbLib.colayer,
+        "Special Purpose Districts": CartoDbLib.splayer,
+        "Limited Height Districts": CartoDbLib.lhlayer
+      }, { collapsed: false, autoZIndex: true }).addTo(CartoDbLib.map);
+    }
+  },
+
   getZoneInfo: function(zonedist) {
    
-    title = ZoningTable[zonedist].district_title;
+    //title = ZoningTable[zonedist].district_title;
     //description = ZoningTable[zone_class].juan_description;
     //zone_class_link = zone_class;
     //project_link = "";
     
+     // console.log(zonedist);
+     // console.log(ZoningTable[zonedist]);
 
+     var z = ZoningTable[zonedist];
     return {
-      'title': title,
-      // 'description': description, 
-      // 'zone_class_link': zone_class_link, 
+      'shortdescription': z.shortdescription,
+      'description': z.description, 
+      'url': z.url, 
       'zone_icon': CartoDbLib.getZoneIcon(zonedist)
       // 'project_link': project_link
     };
@@ -158,34 +258,35 @@ var CartoDbLib = {
       CartoDbLib.map.removeLayer(CartoDbLib.lastClickedLayer);
     }
     $.address.parameter('id', cartodb_id);
-    var sql = new cartodb.SQL({user: 'datamade', format: 'geojson'});
+    var sql = new cartodb.SQL({user: 'cwhong', format: 'geojson'});
     sql.execute('select * from ' + CartoDbLib.tableName + ' where cartodb_id = {{cartodb_id}}', {cartodb_id:cartodb_id})
     .done(function(data){
       var shape = data.features[0];
       CartoDbLib.lastClickedLayer = L.geoJson(shape);
       CartoDbLib.lastClickedLayer.addTo(CartoDbLib.map);
-      CartoDbLib.lastClickedLayer.setStyle({weight: 2, fillOpacity: 0, color: '#000'});
+      CartoDbLib.lastClickedLayer.setStyle({weight: 3, fillOpacity: 0, opacity: 1, color: '#FFF'});
       CartoDbLib.map.fitBounds(CartoDbLib.lastClickedLayer.getBounds(), {maxZoom: 16});
 
       // show custom popup
       var props = shape.properties;
-      var zone_info = CartoDbLib.getZoneInfo(props.zone_class);
+      console.log('props',props);
+      var zone_info = CartoDbLib.getZoneInfo(props.zonedist);
+      console.log(zone_info);
       var popup_content = "\
         <h4>\
           <img src='/images/icons/" + zone_info.zone_icon + ".png' />\
-          <a href='/zone/" + zone_info.zone_class_link + "/'>" + props.zone_class + "\
-            <small>" + zone_info.title + "</small>\
+          <a href='/zone/" + zone_info.url + "/'>" + props.zonedist + "\
+            <small>" + zone_info.shortdescription + "</small>\
           </a>\
         </h4>\
         <p><strong>What's here?</strong><br />\
         " + zone_info.description + "\
-        <a href='/zone/" + zone_info.zone_class_link + "/'>Learn&nbsp;more&nbsp;»</a></p>\
+        <a href='" + zone_info.url + "'>Learn&nbsp;more&nbsp;»</a></p>\
         ";
 
-      if (zone_info.project_link != "")
-        popup_content += "<p><a target='_blank' href='" + zone_info.project_link + "'>Read the full development plan for " + props.zone_class + "&nbsp;»</a></p>"
+      // if (zone_info.project_link != "")
+      //   popup_content += "<p><a target='_blank' href='" + zone_info.project_link + "'>Read the full development plan for " + props.zone_class + "&nbsp;»</a></p>"
 
-      // console.log(click_latlng);
       if (click_latlng) {
         CartoDbLib.popup = L.popup()
         .setContent(popup_content)
@@ -222,7 +323,7 @@ var CartoDbLib = {
           var sql = new cartodb.SQL({user: 'datamade', format: 'geojson'});
           sql.execute('select cartodb_id, the_geom from ' + CartoDbLib.tableName + ' where ST_Intersects( the_geom, ST_SetSRID(ST_POINT({{lng}}, {{lat}}) , 4326))', {lng:CartoDbLib.currentPinpoint[1], lat:CartoDbLib.currentPinpoint[0]})
           .done(function(data){
-            // console.log(data);
+          
             CartoDbLib.getOneZone(data.features[0].properties.cartodb_id, CartoDbLib.currentPinpoint)
           }).error(function(e){console.log(e)});
 

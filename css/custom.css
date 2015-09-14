@@ -121,7 +121,7 @@ label { font-weight: normal;}
     z-index: 100;
 }
 
-.info {
+.info, .coinfo {
     padding: 6px 8px;
     font: 14px/16px Arial, Helvetica, sans-serif;
     background: white;

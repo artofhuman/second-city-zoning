@@ -1,6 +1,6 @@
-# 2nd City Zoning
+# Gotham Zoning
 
-2nd City Zoning is an interactive map that lets you:
+Gotham is an interactive map that lets you:
 
 -   find out **how your building is zoned**
 -   learn **where to locate your business**

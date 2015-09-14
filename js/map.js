@@ -18,12 +18,14 @@ $(function() {
   });
 
   // populate zoning table from CSV
-  $.when($.get("/resources/import/zoning-code-summary-district-types.csv")).then(
+  $.when($.get("/resources/import/zonedata.csv")).then(
     function(data){
       $.each($.csv.toObjects(data), function(i, row){
-        ZoningTable[row['district_type_code']] = row;
+        ZoningTable[row['zonedist']] = row;
       });
+      //console.log(ZoningTable);
     });
+
 
   CartoDbLib.initialize();
   var autocomplete = new google.maps.places.Autocomplete(document.getElementById('search_address'));
