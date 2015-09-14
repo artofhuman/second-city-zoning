@@ -77,19 +77,19 @@ title: Home
         <div class='col-sm-5'>
           <ul class='list-unstyled zones'>
             <li>
-              <label data-content='Houses and apartment buildings. No stores, offices, or factories are allowed. Schools, churches, police stations and the like are ok, though.'>
+              <label data-content='Houses and apartment buildings. No stores, offices, or factories are allowed. Most Schools, churches, police stations and the like are ok, though.'>
                 <img alt='Residential' src='/images/icons/residential.png'>
                 Residential
               </label>
             </li>
             <li>
-              <label data-content='From bodegas to big boxes, these districts are for stores and offices. '>
+              <label data-content='From bodegas to big boxes, these districts are for stores and offices. Residences are also permitted in most commercial districts'>
                 <img alt='Commercial' src='/images/icons/commercial.png'>
                 Commercial
               </label>
             </li>
             <li>
-              <label data-content="Factories, warehouses, freight, junkyards. All the heavy duty stuff in NYC's industrial corridors.">
+              <label data-content="Various industrial uses from warehouse and distribution centers to film production studios and ferry and ship terminals">
                 <img alt='Industrial' src='/images/icons/industrial.png'>
                 Manufacturing
               </label>
@@ -99,9 +99,27 @@ title: Home
         <div class='col-sm-7'>
           <ul class='list-unstyled zones'>
             <li>
-              <label data-content='Protected land set side for public parks, open space, beaches, and cemeteries.'>
+              <label data-content='Public Parks'>
                 <img alt='Parks and Open Space' src='/images/icons/parks-entertainment.png'>
                 Parks and Open Space
+              </label>
+            </li>
+            <li>
+              <label data-content='Commericial Overlays allow for light commerical use in residential areas along busy corridors'>
+                <div class='legendIcon co'></div>
+                Commercial Overlay Districts
+              </label>
+            </li>
+            <li>
+              <label data-content='Areas with special rules to achieve urban planning and design objectives'>
+                <div class='legendIcon sp'></div>
+                Special Purpose Districts
+              </label>
+            </li>
+            <li>
+              <label data-content='Areas where new buildings have additional limits on height'>
+                <div class='legendIcon lh'></div>
+                Limited Height Districts
               </label>
             </li>
           </ul>
@@ -144,12 +162,15 @@ title: Home
         </ul>
       </div>
     </div>
+    <div class="well">
+      Data last updated September 2015.  Forked from <a href = 'http://secondcityzoning.org/'>2nd City Zoning</a>, an <a class='yay-link' href='http://opencityapps.org'>Open City</a> app by <a class='yay-link' href='http://derekeder.com'>Derek Eder</a>, and <a href='https://jpvelez.contently.com'>Juan-Pablo Velez</a><a class='simcopter' href='#'>.</a> App Development for NYC by <a href = 'http://chriswhong.com'>Chris Whong</a>. 
+    </div>
   </div>
   <div class='col-md-8'>
     <div id='mapCanvas'></div>
-    <span class='pull-right'>
-      Data accurate as of September 2015.  Forked from an <a class='yay-link' href='http://opencityapps.org'>Open City</a> app by <a class='yay-link' href='http://derekeder.com'>Derek Eder</a>, and <a href='https://jpvelez.contently.com'>Juan-Pablo Velez</a><a class='simcopter' href='#'>.</a> App Development for NYC by <a href = 'http://chriswhong.com'>Chris Whong</a>. 
-    </span>
+    <!-- <span class='pull-right'>
+      
+    </span> -->
   </div>
 </div>
 <audio id='reticulating-splines' src='/resources/audio/effects/reticulating_splines.mp3'></audio>

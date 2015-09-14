@@ -43,6 +43,7 @@ var CartoDbLib = {
 
       CartoDbLib.info = L.control({position: 'bottomleft'});
       CartoDbLib.coinfo = L.control({position: 'bottomleft'});
+      CartoDbLib.spinfo = L.control({position: 'bottomleft'});
 
       CartoDbLib.info.onAdd = function (map) {
           this._div = L.DomUtil.create('div', 'info'); // create a div with a class "info"
@@ -52,7 +53,11 @@ var CartoDbLib = {
 
       CartoDbLib.coinfo.onAdd = function (map) {
           this._div = L.DomUtil.create('div', 'coinfo'); // create a div with a class "info"
-          //this.update();
+          $(this._div).hide();
+          return this._div;
+      };
+      CartoDbLib.spinfo.onAdd = function (map) {
+          this._div = L.DomUtil.create('div', 'spinfo'); // create a div with a class "info"
           $(this._div).hide();
           return this._div;
       };
@@ -70,11 +75,13 @@ var CartoDbLib = {
       };
 
       CartoDbLib.coinfo.update = function (props) {
-      
-        if (props) {
-      
-          this._div.innerHTML = "<img src='/images/icons/commercial.png' /> Commercial Overlay: " + props.overlay;
-        }
+        this._div.innerHTML = "<img src='/images/icons/commercial.png' /> Commercial Overlay: " + props.overlay;
+        $(this._div).show();
+      };
+
+      CartoDbLib.spinfo.update = function (props) {
+        console.log(props);
+        this._div.innerHTML = "Special Purpose District: " + props.sdname;
         $(this._div).show();
       };
 
@@ -88,8 +95,15 @@ var CartoDbLib = {
         $(this._div).hide();
       };
 
+      CartoDbLib.spinfo.clear = function(){
+
+ 
+        $(this._div).hide();
+      };
+
       CartoDbLib.info.addTo(CartoDbLib.map);
       CartoDbLib.coinfo.addTo(CartoDbLib.map);
+      CartoDbLib.spinfo.addTo(CartoDbLib.map);
 
       var fields = "cartodb_id, zone_type, zone_class, ordinance_"
 
@@ -133,7 +147,7 @@ var CartoDbLib = {
           //console.log(e)
         }); 
 
-        //add the rest of the layers 
+        //add the Commercial Overlay Layer
         var layerStyle = $('#colayer-style').text();
         cartodb.createLayer(CartoDbLib.map, {
           user_name: 'cwhong',
@@ -165,6 +179,7 @@ var CartoDbLib = {
           CartoDbLib.drawLayerControl();
         })
 
+        //add the special purpose districts layer
         var layerStyle = $('#splayer-style').text();
         cartodb.createLayer(CartoDbLib.map, {
           user_name: 'cwhong',
@@ -174,8 +189,23 @@ var CartoDbLib = {
             cartocss: layerStyle
           }]
         })
-        //.addTo(CartoDbLib.map)
+     
         .done(function(layer) {
+
+          var sublayer = layer.getSubLayer(0);
+          sublayer.setInteraction(true);
+          sublayer.setInteractivity('cartodb_id,sdname');
+          sublayer.on('featureOver', function(e, latlng, pos, data, subLayerIndex) {
+            console.log('featureOver');
+            $('#mapCanvas div').css('cursor','pointer');
+            CartoDbLib.spinfo.update(data);
+          });
+
+          sublayer.on('featureOut', function(e, latlng, pos, data, subLayerIndex) {
+            $('#mapCanvas div').css('cursor','inherit');
+            CartoDbLib.coinfo.clear();
+          });
+
           CartoDbLib.splayer = layer;
           CartoDbLib.drawLayerControl();
         })

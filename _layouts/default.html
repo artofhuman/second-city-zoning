@@ -97,7 +97,14 @@
 
   </head>
   <body>
-
+<div id="fb-root"></div>
+<script>(function(d, s, id) {
+  var js, fjs = d.getElementsByTagName(s)[0];
+  if (d.getElementById(id)) return;
+  js = d.createElement(s); js.id = id;
+  js.src = "//connect.facebook.net/en_US/sdk.js#xfbml=1&version=v2.4&appId=236006577410";
+  fjs.parentNode.insertBefore(js, fjs);
+}(document, 'script', 'facebook-jssdk'));</script>
     <nav class="navbar navbar-inverse">
       <div class="container-fluid">
         <div class="navbar-header">
@@ -108,9 +115,20 @@
             <span class="icon-bar"></span>
           </button>
           <a class="navbar-brand" href="/"><img alt='Gotham Zoning' src='/images/logo.png'></a>
-          <p class='navbar-text pull-left'>
+          <!-- <p class='navbar-text pull-left'>
             Explore NYC's Zoning
-          </p>
+          </p> -->
+          <ul class="nav navbar-nav">
+            <li>
+              <a href="https://twitter.com/share" class="twitter-share-button" data-url="http://gothamzoning.com" data-text="Check out this Interactive Map of NYC Zoning">Tweet</a>
+<script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+'://platform.twitter.com/widgets.js';fjs.parentNode.insertBefore(js,fjs);}}(document, 'script', 'twitter-wjs');</script>
+            </li> 
+            <li>
+              <div class="fb-like" data-href="https://gothamzoning.org" data-layout="button_count" data-action="like" data-show-faces="false" data-share="true"></div>
+            </li> 
+          </ul>
+          
+
         </div>
         <div id="navbar" class="collapse navbar-collapse">
           <ul class="nav navbar-nav pull-right">
