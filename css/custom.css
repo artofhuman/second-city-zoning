@@ -167,4 +167,6 @@ label { font-weight: normal;}
 }
 
 
-
+.leaflet-bottom .leaflet-control:last-child {
+    margin-bottom:40px;
+ }
