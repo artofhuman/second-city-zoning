@@ -175,3 +175,8 @@ nav {
   height:84px;
 }
 
+.exhibit .info.leaflet-control {
+  display: none !important;
+}
+
+
