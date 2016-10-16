@@ -1,0 +1,23 @@
+/** simple visualization */
+
+#nyc_zoning{
+    polygon-fill: #eee;
+    polygon-opacity: 0.5;
+    line-color: #666;
+    line-width: 1;
+    line-opacity: .5;
+    [zoom<=9] { line-width: 0.1; }
+    [zoom=10] { line-width: .2; }
+    [zoom=11] { line-width: .3; }
+    [zoom=12] { line-width: .4; }
+    [zoom=13] { line-width: .5; }
+  }
+
+
+ #nyc_zoning[zonetype= 'M'] { polygon-fill: #ffff00; }
+  #nyc_zoning[zonetype='R'] { polygon-fill: #00ff00; }
+  #nyc_zoning[zonetype='P'] { polygon-fill: #38761d; }
+
+
+#nyc_zoning[zonetype='C'] { polygon-fill: #0000ff; }
+

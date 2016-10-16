@@ -166,7 +166,9 @@ label { font-weight: normal;}
     margin-left: 13px;
 }
 
+.info.leaflet-control {
+  position: relative;
+  top: -30px;
+}
 
-.leaflet-bottom .leaflet-control:last-child {
-    margin-bottom:40px;
- }
+

@@ -6,7 +6,7 @@ var CartoDbLib = {
   lastClickedLayer: null,
   locationScope:   "new_york",
   currentPinpoint: null,
-  layerUrl: 'https://cwhong.cartodb.com/api/v2/viz/66276cd2-5817-11e5-9177-0ec6f7c8b2b9/viz.json',
+  layerUrl: 'https://cwhong.carto.com/api/v2/viz/1d2402e0-933d-11e6-839f-0ee66e2c9693/viz.json',
   tableName: 'nyc_zoning',
   maptiks_tracking_code: '',
 
