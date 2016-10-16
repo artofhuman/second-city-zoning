@@ -350,7 +350,7 @@ var CartoDbLib = {
             iconAnchor: [10, 32]
           }))}).addTo(CartoDbLib.map);
 
-          var sql = new cartodb.SQL({user: 'datamade', format: 'geojson'});
+          var sql = new cartodb.SQL({user: 'cwhong', format: 'geojson'});
           sql.execute('select cartodb_id, the_geom from ' + CartoDbLib.tableName + ' where ST_Intersects( the_geom, ST_SetSRID(ST_POINT({{lng}}, {{lat}}) , 4326))', {lng:CartoDbLib.currentPinpoint[1], lat:CartoDbLib.currentPinpoint[0]})
           .done(function(data){
           
