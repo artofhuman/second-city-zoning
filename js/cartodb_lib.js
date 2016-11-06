@@ -302,7 +302,20 @@ var CartoDbLib = {
       console.log('props',props);
       var zone_info = CartoDbLib.getZoneInfo(props.zonedist);
       console.log(zone_info);
-      var popup_content = "\
+
+      if (window.location.pathname == '/exhibit/') {
+        var popup_content = "\
+          <h4>\
+            <img src='/images/icons/" + zone_info.zone_icon + ".png' />\
+            <a href='/zone/" + zone_info.url + "/'>" + props.zonedist + "\
+              <small>" + zone_info.shortdescription + "</small>\
+            </a>\
+          </h4>\
+          <p><strong>What's here?</strong><br />\
+          " + zone_info.description ;
+
+      } else {
+          var popup_content = "\
         <h4>\
           <img src='/images/icons/" + zone_info.zone_icon + ".png' />\
           <a href='/zone/" + zone_info.url + "/'>" + props.zonedist + "\
@@ -312,7 +325,11 @@ var CartoDbLib = {
         <p><strong>What's here?</strong><br />\
         " + zone_info.description + "\
         <a href='" + zone_info.url + "'>Learn&nbsp;more&nbsp;»</a></p>\
-        ";
+        ";    
+      }
+
+
+
 
       // if (zone_info.project_link != "")
       //   popup_content += "<p><a target='_blank' href='" + zone_info.project_link + "'>Read the full development plan for " + props.zone_class + "&nbsp;»</a></p>"
