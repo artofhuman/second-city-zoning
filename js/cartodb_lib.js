@@ -20,20 +20,20 @@ var CartoDbLib = {
 
     // initiate leaflet map
     if (!CartoDbLib.map) {
-      CartoDbLib.map = new L.Map('mapCanvas', { 
+      CartoDbLib.map = new L.Map('mapCanvas', {
         center: CartoDbLib.map_centroid,
         zoom: CartoDbLib.defaultZoom,
         layers: CartoDbLib.basemap
       });
 
       //CartoDbLib.google = new L.Google('ROADMAP', {animate: false});
-        
+
       CartoDbLib.satellite = L.tileLayer('https://{s}.tiles.mapbox.com/v3/datamade.k92mcmc8/{z}/{x}/{y}.png', {
         attribution: '<a href="http://www.mapbox.com/about/maps/" target="_blank">Terms &amp; Feedback</a>',
         detectRetina: true,
         sa_id: 'satellite'
       });
-        
+
       CartoDbLib.basemap = L.tileLayer('http://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png', {
         attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, &copy; <a href="http://cartodb.com/attributions">CartoDB</a>'
       }).addTo(CartoDbLib.map);
@@ -64,7 +64,7 @@ var CartoDbLib = {
 
       // method that we will use to update the control based on feature properties passed
       CartoDbLib.info.update = function (props) {
-      
+
         if (props) {
           var zone_info = CartoDbLib.getZoneInfo(props.zonedist);
           this._div.innerHTML = "<img src='/images/icons/" + zone_info.zone_icon + ".png' /> " + props.zonedist + " - " + zone_info.shortdescription;
@@ -80,7 +80,6 @@ var CartoDbLib = {
       };
 
       CartoDbLib.spinfo.update = function (props) {
-        console.log(props);
         this._div.innerHTML = "Special Purpose District: " + props.sdname;
         $(this._div).show();
       };
@@ -91,13 +90,13 @@ var CartoDbLib = {
 
       CartoDbLib.coinfo.clear = function(){
 
- 
+
         $(this._div).hide();
       };
 
       CartoDbLib.spinfo.clear = function(){
 
- 
+
         $(this._div).hide();
       };
 
@@ -143,9 +142,8 @@ var CartoDbLib = {
           CartoDbLib.drawLayerControl();
 
         }).error(function(e) {
-          //console.log('ERROR')
-          //console.log(e)
-        }); 
+          console.log(e)
+        });
 
         //add the Commercial Overlay Layer
         var layerStyle = $('#colayer-style').text();
@@ -159,7 +157,7 @@ var CartoDbLib = {
         })
         //.addTo(CartoDbLib.map)
         .done(function(layer) {
-          
+
 
           var sublayer = layer.getSubLayer(0);
           sublayer.setInteraction(true);
@@ -167,7 +165,6 @@ var CartoDbLib = {
           sublayer.on('featureOver', function(e, latlng, pos, data, subLayerIndex) {
             $('#mapCanvas div').css('cursor','pointer');
             CartoDbLib.coinfo.update(data);
-            console.log(data);
           });
 
           sublayer.on('featureOut', function(e, latlng, pos, data, subLayerIndex) {
@@ -189,14 +186,13 @@ var CartoDbLib = {
             cartocss: layerStyle
           }]
         })
-     
+
         .done(function(layer) {
 
           var sublayer = layer.getSubLayer(0);
           sublayer.setInteraction(true);
           sublayer.setInteractivity('cartodb_id,sdname');
           sublayer.on('featureOver', function(e, latlng, pos, data, subLayerIndex) {
-            console.log('featureOver');
             $('#mapCanvas div').css('cursor','pointer');
             CartoDbLib.spinfo.update(data);
           });
@@ -211,7 +207,6 @@ var CartoDbLib = {
         })
 
         var layerStyle = $('#lhlayer-style').text();
-        console.log(layerStyle);
         cartodb.createLayer(CartoDbLib.map, {
           user_name: 'cwhong',
           type: 'cartodb',
@@ -223,7 +218,7 @@ var CartoDbLib = {
         //.addTo(CartoDbLib.map)
         .done(function(layer) {
           CartoDbLib.lhlayer = layer;
-      
+
           CartoDbLib.drawLayerControl();
         })
 
@@ -235,7 +230,7 @@ var CartoDbLib = {
 
   drawLayerControl: function() {
     if(
-      CartoDbLib.zoninglayer 
+      CartoDbLib.zoninglayer
       && CartoDbLib.colayer
       && CartoDbLib.splayer
       && CartoDbLib.lhlayer
@@ -250,20 +245,17 @@ var CartoDbLib = {
   },
 
   getZoneInfo: function(zonedist) {
-   
+
     //title = ZoningTable[zonedist].district_title;
     //description = ZoningTable[zone_class].juan_description;
     //zone_class_link = zone_class;
     //project_link = "";
-    
-     // console.log(zonedist);
-     // console.log(ZoningTable[zonedist]);
 
      var z = ZoningTable[zonedist];
     return {
       'shortdescription': z.shortdescription,
-      'description': z.description, 
-      'url': z.url, 
+      'description': z.description,
+      'url': z.url,
       'zone_icon': CartoDbLib.getZoneIcon(zonedist)
       // 'project_link': project_link
     };
@@ -299,9 +291,7 @@ var CartoDbLib = {
 
       // show custom popup
       var props = shape.properties;
-      console.log('props',props);
       var zone_info = CartoDbLib.getZoneInfo(props.zonedist);
-      console.log(zone_info);
       var popup_content = "\
         <h4>\
           <img src='/images/icons/" + zone_info.zone_icon + ".png' />\
@@ -334,11 +324,11 @@ var CartoDbLib = {
   doSearch: function() {
     CartoDbLib.clearSearch();
     var address = $("#search_address").val();
-    
+
     if (address != "") {
       if (address.toLowerCase().indexOf(CartoDbLib.locationScope) == -1)
         address = address + " " + CartoDbLib.locationScope;
-      
+
       geocoder.geocode( { 'address': address}, function(results, status) {
         if (status == google.maps.GeocoderStatus.OK) {
           CartoDbLib.currentPinpoint = [results[0].geometry.location.lat(), results[0].geometry.location.lng()];
@@ -353,12 +343,12 @@ var CartoDbLib = {
           var sql = new cartodb.SQL({user: 'cwhong', format: 'geojson'});
           sql.execute('select cartodb_id, the_geom from ' + CartoDbLib.tableName + ' where ST_Intersects( the_geom, ST_SetSRID(ST_POINT({{lng}}, {{lat}}) , 4326))', {lng:CartoDbLib.currentPinpoint[1], lat:CartoDbLib.currentPinpoint[0]})
           .done(function(data){
-          
+
             CartoDbLib.getOneZone(data.features[0].properties.cartodb_id, CartoDbLib.currentPinpoint)
           }).error(function(e){console.log(e)});
 
           // CartoDbLib.drawCircle(CartoDbLib.currentPinpoint);
-        } 
+        }
         else {
           alert("We could not find your address: " + status);
         }
@@ -384,7 +374,7 @@ var CartoDbLib = {
   findMe: function() {
     // Try W3C Geolocation (Preferred)
     var foundLocation;
-    
+
     if(navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(function(position) {
         foundLocation = new google.maps.LatLng(position.coords.latitude,position.coords.longitude);
@@ -395,7 +385,7 @@ var CartoDbLib = {
       alert("Sorry, we could not find your location.");
     }
   },
-  
+
   addrFromLatLng: function(latLngPoint) {
     geocoder.geocode({'latLng': latLngPoint}, function(results, status) {
       if (status == google.maps.GeocoderStatus.OK) {

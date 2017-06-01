@@ -23,7 +23,6 @@ $(function() {
       $.each($.csv.toObjects(data), function(i, row){
         ZoningTable[row['zonedist']] = row;
       });
-      //console.log(ZoningTable);
     });
 
 
@@ -64,7 +63,6 @@ $(function() {
   });
 
   $('.simcopter').click(function(e){
-    console.log('simcopter!');
     play_multi_sound("simcopter-one");
     return false;
   });
