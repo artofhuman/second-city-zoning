@@ -19,6 +19,10 @@ label { font-weight: normal;}
 
 .navbar-inverse { background-color: #F7F7F7;}
 
+.navbar-brand {
+  padding-top: 10px;
+}
+
 .navbar .brand {
   padding: 10px 0 7px 15px;
 }
